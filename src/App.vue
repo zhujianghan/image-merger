@@ -1,5 +1,13 @@
+<script setup>
+import HHeader from '@/components/HHeader.vue'
+import RoleField from '@/components/RoleField.vue'
+</script>
+
 <template>
-  <h1 class="text-3xl font-bold underline bg-red-100">
-    Hello world!
-  </h1>
+  <div class="p-4 max-w-md mx-auto border">
+    <HHeader/>
+
+
+    <RoleField/>
+  </div>
 </template>
