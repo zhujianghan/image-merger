@@ -13,5 +13,6 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0'
-  }
+  },
+  base: '', // 默认 /, 解决部署到二级目录, 如 github.io/image-merge
 })
