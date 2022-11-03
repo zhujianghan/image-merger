@@ -4,6 +4,7 @@ import HHeader from '@/components/HHeader.vue'
 import RoleField from '@/components/RoleField.vue'
 
 const canvasDom = ref(null)
+const previewImage = ref('')
 const data = reactive({
   roles: [
     {
@@ -37,49 +38,62 @@ function addMore() {
   data.roles.push(emptyRole)
 }
 
-function preview() {
-  const wid = 700
-  canvasDom.value.width = wid
+/**
+ * name1    name2     name2
+ * pic1-1   pic2-1    pic2-1
+ * pic1-2   pic2-2    pic2-2
+ *
+ * */
+function draw() {
+  const columnWidth = 300
+  const row1Height = 20
+  const row2Height = 2.16 * 300
+  const row3Height = 2.16 * 300
 
-  const itemWidth = (wid - 70) / 2
-  const itemHeight = 2.16 * itemWidth
-  canvasDom.value.height = itemHeight * data.roles.length + (data.roles.length + 1) * 10
+  const cols = data.roles.length
+  canvasDom.value.width = columnWidth * cols + (cols + 1) * 10 // mx-10px
+  canvasDom.value.height = row1Height + row2Height + row3Height + (3 + 1) * 10 // my-10px
 
   const ctx = canvasDom.value.getContext('2d')
-  // 初始化背景
+  // 初始化背景, 及最外边框
   ctx.fillStyle = '#FFFFFF'
   ctx.fillRect(0, 0, canvasDom.value.width, canvasDom.value.height)
   // 初始化前景色
   ctx.fillStyle = '#000000'
 
+  // current 位置
   let currentHeight = 10
   let currentWidth = 10
   for (let role of data.roles) {
-    // left name
-    const arr = role.roleName.split('')
-    ctx.font = '28px Arial'
-    for (let index in arr) {
-      ctx.fillText(arr[index], currentWidth, currentHeight + 100 + index * 36)
-    }
+    // top name
+    ctx.font = '20px Arial'
+    ctx.fillText(role.roleName, currentWidth + 5, currentHeight + 20, columnWidth)
+    currentHeight += row1Height + 10
 
     const img = new Image()
-    // right healthCode
+    // middle healthCode
     img.src = role.healthCode
-    ctx.strokeRect(currentWidth + 20 + 10, currentHeight, itemWidth, itemHeight)
-    ctx.drawImage(img, currentWidth + 20 + 10, currentHeight, itemWidth, itemHeight)
+    ctx.strokeRect(currentWidth, currentHeight, columnWidth, row2Height)
+    ctx.drawImage(img, currentWidth, currentHeight, columnWidth, row2Height)
+    currentHeight += row2Height + 10
 
-    // right travelCode
+    // bottom travelCode
     img.src = role.travelCode
-    ctx.strokeRect(currentWidth + 20 + 10 + itemWidth + 10, currentHeight, itemWidth, itemHeight)
-    ctx.drawImage(img, currentWidth + 20 + 10 + itemWidth + 10, currentHeight, itemWidth, itemHeight)
+    ctx.strokeRect(currentWidth, currentHeight, columnWidth, row3Height)
+    ctx.drawImage(img, currentWidth, currentHeight, columnWidth, row3Height)
 
-    currentWidth = 10
-    currentHeight += itemHeight + 10
+    currentWidth += columnWidth + 10
+    currentHeight = 10
   }
 }
 
+function preview() {
+  draw()
+  previewImage.value = canvasDom.value.toDataURL('image/png', 1.0)
+}
+
 function downloadImage() {
-  preview()
+  draw()
 
   const el = document.createElement('a')
   el.href = canvasDom.value.toDataURL('image/png', 1.0)
@@ -136,6 +150,10 @@ function getDateFormat() {
       </div>
     </div>
 
-    <canvas ref="canvasDom" class="mx-auto border"></canvas>
+    <div class="px-4" v-show="previewImage.length > 0">
+      <img :src="previewImage" alt="preview">
+    </div>
+
+    <canvas ref="canvasDom" class="mx-auto border hidden"></canvas>
   </div>
 </template>
